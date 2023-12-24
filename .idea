@@ -1,0 +1,42 @@
+models
+- users
+- course
+- enrollment
+- instructor
+- module
+- lesson
+- comments
+
+apps
+- sys_management
+    models
+        - users
+        - instructors
+- school
+    models
+        - category
+        - course
+        - enrollment
+        - module
+        - lesson
+        - comments
+- queries
+    - users *
+    - me *
+    - profile
+    - wishlist *
+    - cart *
+    - categories *
+    - my_courses *
+    - search
+    - recommended
+    - because_you_viewed_x
+    - popular_for_your_goal
+    - top_courses_in_favourite_topic
+    - similar_learners_are_viewing_x
+    - featured_courses_in_favorite_topic
+    - short_and_sweet_courses_for_you
+- mutations
+    - add_to_cart
+    - update_profile
+    - leave_comment
