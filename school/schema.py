@@ -5,8 +5,6 @@ from .models import (Category, Course, Module, Enrollment, Lesson, Wishlist, Car
 from sys_management.schema import InstructorType
 from sys_management.models import Instructor
 from django.db.models import Q
-from utils.recommendations import train_user_to_user_recommendation_model
-import pandas as pd
 class CategoryType(DjangoObjectType):
     class Meta:
         model = Category
@@ -31,9 +29,6 @@ class CartType(DjangoObjectType):
     class Meta:
         model = Cart
 
-class SearchResultType(graphene.Union):
-    class Meta:
-        types = (CourseType, InstructorType, CategoryType)
 class RatingType(DjangoObjectType):
     class Meta:
         model = Rating
@@ -47,8 +42,7 @@ class Query(graphene.ObjectType):
     my_wishlist = graphene.List(WishlistType)
     my_cart = graphene.List(CartType)
     my_courses = graphene.List(EnrollmentType)
-    search = graphene.List(SearchResultType, query=graphene.String())
-    recommended_courses = graphene.List(CourseType, user_id=graphene.Int())
+    search = graphene.List(CourseType, query=graphene.String())
     course_by_id = graphene.Field(CourseType, id=graphene.Int())
     lesson_by_id = graphene.Field(LessonType, id=graphene.Int())
     def resolve_course_by_id(self, info, id=None):
@@ -65,31 +59,6 @@ class Query(graphene.ObjectType):
         if not lesson:
             raise Exception(f"Course with id {id} not found")
         return lesson
-    def resolve_recommended_courses(self, info, user_id):
-        ratings = Rating.objects.filter(user_id=user_id)
-        ratings_df = pd.DataFrame.from_records(ratings.values('user_id', 'course_id', 'rating'))
-
-        recommendation_model = train_user_to_user_recommendation_model(ratings_df)
-
-        user_course_matrix = ratings_df.pivot_table(index='user_id', columns='course_id', values='rating', fill_value=0)
-
-        recommended_courses = []
-
-        # Get courses the user has rated
-        user_rated_courses = user_course_matrix.loc[user_id]
-        print(user_rated_courses)
-        # Iterate over user's rated courses
-        for course_id, rating in user_rated_courses.items():
-            similar_courses = recommendation_model[course_id].sort_values(ascending=False).head(5).index
-            recommended_courses.extend(similar_courses)
-
-        # Remove courses the user has already rated
-        print(recommended_courses)
-        recommended_courses = set(recommended_courses) - set(user_rated_courses.index)
-        
-        recommended_courses = Course.objects.filter(id__in=recommended_courses)
-
-        return recommended_courses
     def resolve_categories(self, info):
         return Category.objects.all()
     def resolve_search(self, info, query):
@@ -99,9 +68,7 @@ class Query(graphene.ObjectType):
             Q(title__icontains=query) |
             Q(description__icontains=query)
         )
-        instructors = Instructor.objects.filter(Q(user__username__icontains=query))
-        categories = Category.objects.filter(Q(name__icontains=query))
-        return list(chain(courses, instructors, categories))
+        return courses
     def resolve_courses(self, info):
         return Course.objects.filter(status=1)
     def resolve_modules(self, info):
