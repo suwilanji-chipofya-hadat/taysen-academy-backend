@@ -197,6 +197,4 @@ STORAGES = {
         },
     },
 }
-
-STATICFILES_STORAGE = "django.core.files.storage.FileSystemStorage"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
