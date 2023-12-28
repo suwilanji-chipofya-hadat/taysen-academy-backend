@@ -177,16 +177,14 @@ STORAGES = {
         "OPTIONS": {
             "oauth2_access_token": os.environ.get("DROPBOX_ACCESS_TOKEN"),
             "oauth2_refresh_token": os.environ.get("DROPBOX_REFRESH_TOKEN"),
-            "app_secret": os.environ.get("DROPBOX_SECRET"),
-            "app_key": os.environ.get("DROPBOX_KEY"),
+            "app_secret": os.environ.get("DROPBOX_APP_SECRET"),
+            "app_key": os.environ.get("DROPBOX_APP_KEY"),
             "root_path": "/media",  # Default: '/'
             "timeout": 100,
             "write_mode": "add",
         },
     },
-}
-
-STORAGES["staticfiles"] = {
+    "staticfiles": {
     "BACKEND": "storages.backends.dropbox.DropboxStorage",
     "OPTIONS": {
         "oauth2_access_token": os.environ.get("DROPBOX_ACCESS_TOKEN"),
@@ -197,7 +195,9 @@ STORAGES["staticfiles"] = {
         "timeout": 100,
         "write_mode": "add",
     },
+    },
 }
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
