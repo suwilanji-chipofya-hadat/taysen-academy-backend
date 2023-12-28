@@ -1,4 +1,3 @@
-echo "Hello World"
 pip install -r requirements.txt
-python3.9 manage.py collectstatic
-python3.9 manage.py create_superuser
+python3.10 manage.py collectstatic
+python3.10 manage.py create_superuser
